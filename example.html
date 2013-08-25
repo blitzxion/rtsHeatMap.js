@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<link rel="stylesheet" type="text/css" href="css/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/bootstrap/css/bootstrap-responsive.min.css">
+
+	<style type="text/css">
+		.maps { height: 200px; }
+	</style>
+
+	<!-- Required -->
+	<script src="js/jquery-1.10.1.min.js"></script>
+
+	<!-- NOT REQUIRED FOR PLUGIN -->
+	<script src="js/json.js"></script>
+	<script src="js/moment.min.js"></script>
+	<script src="js/twix.min.js"></script>
+
+	<!-- REQUIRED -->
+	<script src="js/jcanvas.min.js"></script>
+	<script src="js/rtsHeatMap.js"></script>
+
+</head>
+
+<body>
+
+<div class="container">
+
+	<br/>
+
+	<div class="well">
+		<h1>Richard's RTSHeatMap JS Plugin.</h1>
+	</div>
+
+	<hr/>
+
+	<div id="map1" class="maps" data-map-data=""></div>
+
+	<hr/>
+
+	<div class="row-fluid">
+		<div id="map2" class="span6 first maps" data-map-data="" data-map-backgroundcolor="#5794ee" data-map-column-max-segment-count="10" data-map-segment-radius="5"></div>
+		<div id="map3" class="span6 last maps" data-map-data="" data-map-backgroundcolor="#f4cf19" data-map-column-max-segment-count="10" data-map-segment-radius="10"></div>
+	</div>
+</div>
+
+</body>
+
+<script type="text/javascript">
+	(function(){
+
+		// Date Range for use
+		var itr = moment("1/1/2013").twix("12/31/2013").iterate("days"), range = [];
+		while(itr.hasNext()) range.push(moment(itr.next().toDate()).format('YYYY-MM-DD'));
+
+		var vals = [];
+		for (var i = 1; i <= 3; i++) {
+			vals[i] = {}; // new array
+			switch(i) {
+				// Dates array
+				case 1:
+					for(var d = 0; d <= 365; d++)
+						vals[i][range[d]] = getRandomInt(0,200); // Looping over all days
+					$('#map1').attr('data-map-data',$.toJSON(vals[i]));
+					break;
+
+				// Simple Points array
+				case 2:
+					for(var d = 0; d <= 500; d++)
+						vals[i][d] = getRandomInt(0,200);
+					$('#map2').attr('data-map-data',$.toJSON(vals[i]));
+					break;
+
+				// Strange use?
+				case 3:
+					for(var d = 0; d <= 1000; d++)
+						vals[i][d] = getRandomInt(0,10);
+					$('#map3').attr('data-map-data',$.toJSON(vals[i]));
+					break;
+			}
+		};
+
+		// Render Maps
+		$('.maps').rtsHeatMap({
+			// options (will apply to all, however, data-attrs will override these values if they are present!)
+			mapBackgroundcolor : 'white'
+		});
+
+
+
+		function getRandomInt (min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+	})(jQuery);
+</script>
+
+</html>
