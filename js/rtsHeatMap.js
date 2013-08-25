@@ -8,6 +8,7 @@
 		mapWidth : null, // If null, i'll use the parent DOM width
 
 		mapSegmentColor : "#89bc62", // You must provide me and RGB value (rgb(255,255,255)) and i'll use this (in HSL format) only OR the word random, then i'll pick one for you
+		mapSegmentMinLightness : .1,
 		mapSegmentRadius : 0,
 
 		mapColumnSegmentDimensions : {width:15,height:15}, // Dimensions, in pixels. (10px height, 10px width)
@@ -138,26 +139,36 @@
 		return this.each(function(){
 			$this = $(this); // hurp
 
+			log('====================================================================================================================');
+
 			// I support the Data option!
 			// http://learn.jquery.com/plugins/advanced-plugin-concepts/
 			var opts = $.extend({},settings,$this.data());
 
 			// My random color do-hicky
+			// http://www.paulirish.com/2009/random-hex-color-code-snippets/
 			if(opts.mapSegmentColor == 'random')
-				opts.mapSegmentColor = '#'+Math.floor(Math.random()*16777215).toString(16); // http://www.paulirish.com/2009/random-hex-color-code-snippets/
+				opts.mapSegmentColor = '#'+('000000' + Math.floor(Math.random()*0xFFFFFF<<0).toString(16)).slice(-6);
+			if(opts.mapBackgroundcolor == 'random')
+				opts.mapBackgroundcolor = '#'+('000000' + Math.floor(Math.random()*0xFFFFFF<<0).toString(16)).slice(-6);
+
+			log(opts.mapSegmentColor);
 
 			// Create the canvas element for each object.
 			var canvObj = createCanvasObject($this, opts); // now can use $(canvObj) to do canvas methods
 
 			$(this).append(canvObj); // write the new canvas to the parent.
 
-			// Get Max value of the object array
+			// Get Max/Min/Ratio value of the object array
+			var lowest = Number.POSITIVE_INFINITY;
 			var highest = Number.NEGATIVE_INFINITY;
 			var tmp;
 			for (var key in opts.mapData) {
 				tmp = opts.mapData[key];
+				if(tmp < lowest) lowest = tmp;
 				if(tmp > highest) highest = tmp;
 			}
+			var ratio = (1 - opts.mapSegmentMinLightness)/(highest - lowest);
 
 			var i = 0;
 			var columnCount = 0;
@@ -168,8 +179,10 @@
 				// Determine Fill Style
 				fillStyle = hexToRgb(opts.mapSegmentColor); // This will either be null (it wasn't hex) or an string rgb value
 				if(!fillStyle) fillStyle = opts.mapSegmentColor; // returns {r:0,g:0,b:0} object
+
 				var hsl = rgbToHsl(fillStyle.r,fillStyle.g,fillStyle.b); // Canvas does accept hsl values. the L
-				hsl.l = val / highest; // Need to determine the "L" instensity value.
+				hsl.l = opts.mapSegmentMinLightness + (val * ratio); // The big winner!  minvalue + (val * ratio)
+
 				var rgb = hslToRgb(hsl.h,hsl.s,hsl.l);
 				fillStyle = 'rgb({0},{1},{2})'.format(Math.round(rgb.r), Math.round(rgb.g), Math.round(rgb.b));
 
@@ -184,8 +197,6 @@
 				if(i % opts.mapColumnMaxSegmentCount > 0) { // I'm withing a column, keep adding height
 					y += opts.mapColumnSegmentDimensions.height;
 				}
-
-				//log('I: ' + i + ' X: ' + x + ' ColumnCount: ' + columnCount + ' MOD: ' + (i % opts.mapColumnMaxSegmentCount));
 
 				// Create square
 				$(canvObj).drawRect({

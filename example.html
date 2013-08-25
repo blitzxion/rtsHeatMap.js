@@ -34,13 +34,13 @@
 
 	<hr/>
 
-	<div id="map1" class="maps" data-map-data=""></div>
+	<div id="map1" class="maps" data-map-segment-color="random" data-map-data=""></div>
 
 	<hr/>
 
 	<div class="row-fluid">
 		<div id="map2" class="span6 first maps" data-map-data="" data-map-backgroundcolor="#ede8e5" data-map-column-max-segment-count="10" data-map-segment-color="random" data-map-segment-radius="5"></div>
-		<div id="map3" class="span6 last maps" data-map-data="" data-map-backgroundcolor="#e6f0f5" data-map-column-max-segment-count="13"data-map-segment-color="random"  data-map-segment-radius="10"></div>
+		<div id="map3" class="span6 last maps" data-map-data="" data-map-backgroundcolor="random" data-map-column-max-segment-count="13" data-map-segment-color="random"  data-map-segment-radius="10"></div>
 	</div>
 </div>
 
@@ -66,14 +66,14 @@
 
 				// Simple Points array
 				case 2:
-					for(var d = 0; d <= 300; d++)
+					for(var d = 0; d <= getRandomInt(300,400); d++)
 						vals[i][d] = getRandomInt(0,200);
 					$('#map2').attr('data-map-data',$.toJSON(vals[i]));
 					break;
 
 				// Strange use?
 				case 3:
-					for(var d = 0; d <= 300; d++)
+					for(var d = 0; d <= getRandomInt(300,600); d++)
 						vals[i][d] = getRandomInt(0,10);
 					$('#map3').attr('data-map-data',$.toJSON(vals[i]));
 					break;
