@@ -8,7 +8,8 @@
 		mapWidth : null, // If null, i'll use the parent DOM width
 
 		mapSegmentColor : "#89bc62", // You must provide me and RGB value (rgb(255,255,255)) and i'll use this (in HSL format) only OR the word random, then i'll pick one for you
-		mapSegmentMinLightness : .1,
+		mapSegmentMinLightness : .15,
+		mapSegmentMaxLightness : .85,
 		mapSegmentRadius : 0,
 
 		mapColumnSegmentDimensions : {width:15,height:15}, // Dimensions, in pixels. (10px height, 10px width)
@@ -152,8 +153,6 @@
 			if(opts.mapBackgroundcolor == 'random')
 				opts.mapBackgroundcolor = '#'+('000000' + Math.floor(Math.random()*0xFFFFFF<<0).toString(16)).slice(-6);
 
-			log(opts.mapSegmentColor);
-
 			// Create the canvas element for each object.
 			var canvObj = createCanvasObject($this, opts); // now can use $(canvObj) to do canvas methods
 
@@ -168,7 +167,8 @@
 				if(tmp < lowest) lowest = tmp;
 				if(tmp > highest) highest = tmp;
 			}
-			var ratio = (1 - opts.mapSegmentMinLightness)/(highest - lowest);
+			var ratio = (1 - opts.mapSegmentMinLightness - (1-opts.mapSegmentMaxLightness))/(highest - lowest);
+
 
 			var i = 0;
 			var columnCount = 0;
@@ -181,7 +181,7 @@
 				if(!fillStyle) fillStyle = opts.mapSegmentColor; // returns {r:0,g:0,b:0} object
 
 				var hsl = rgbToHsl(fillStyle.r,fillStyle.g,fillStyle.b); // Canvas does accept hsl values. the L
-				hsl.l = opts.mapSegmentMinLightness + (val * ratio); // The big winner!  minvalue + (val * ratio)
+				hsl.l = Math.abs( opts.mapSegmentMinLightness + (val * ratio) - 1 ); // Flips dark/light so its lower the number, lighter the color.
 
 				var rgb = hslToRgb(hsl.h,hsl.s,hsl.l);
 				fillStyle = 'rgb({0},{1},{2})'.format(Math.round(rgb.r), Math.round(rgb.g), Math.round(rgb.b));
