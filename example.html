@@ -45,7 +45,11 @@
 
 	<hr/>
 
-	<div id="map4" style="height:300px" data-map-data=""></div>
+	<div id="map4" style="height:300px" data-map-segment-color="random" data-map-data=""></div>
+	<br/>
+	<div>
+		<button type="button" class="btn btn-primary" id="changecolor">Change Color</button>
+	</div>
 
 </div>
 
@@ -96,11 +100,15 @@
 			mapBackgroundcolor : 'white'
 		});
 
-		$('#map4').rtsHeatMap({
+		var map = $('#map4').rtsHeatMap({
 			mapBackgroundcolor : 'lightgrey',
 			mapSegmentColor : "#89b092",
 			mapColumnSegmentDimensions : {width:25,height:25},
 			mapColumnMaxSegmentCount : 10,
+		}).data('rtsHeatMap');
+
+		$('#changecolor').click(function(){
+			map.setMapSegmentColor('#'+('000000' + Math.floor(Math.random()*0xFFFFFF<<0).toString(16)).slice(-6));
 		});
 
 
