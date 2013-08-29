@@ -9,7 +9,7 @@
 	</style>
 
 	<!-- Required -->
-	<script src="js/jquery-1.10.1.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
 	<!-- NOT REQUIRED FOR PLUGIN -->
 	<script src="js/json.js"></script>
@@ -39,8 +39,8 @@
 	<hr/>
 
 	<div class="row-fluid">
-		<div id="map2" class="span6 first maps" data-map-data="" data-map-backgroundcolor="#ede8e5" data-map-column-max-segment-count="10" data-map-segment-color="random" data-map-segment-radius="5"></div>
-		<div id="map3" class="span6 last maps" data-map-data="" data-map-backgroundcolor="random" data-map-column-max-segment-count="13" data-map-segment-color="random"  data-map-segment-radius="10"></div>
+		<div id="map2" class="span6 first maps" data-map-data="" data-map-backgroundcolor="#ede8e5" data-map-segment-color="random" data-map-segment-radius="5"></div>
+		<div id="map3" class="span6 last maps" data-map-data="" data-map-backgroundcolor="random" data-map-segment-color="random"  data-map-segment-radius="10"></div>
 	</div>
 
 	<hr/>
@@ -48,7 +48,17 @@
 	<div id="map4" style="height:300px" data-map-segment-color="random" data-map-data=""></div>
 	<br/>
 	<div>
-		<button type="button" class="btn btn-primary" id="changecolor">Change Color</button>
+		<button type="button" class="btn btn-primary" id="changeMapSegmentcolor">Change Base Segment Color</button>
+		<button type="button" class="btn btn-primary" id="changeMapBackgroundcolor">Change Background Color</button>
+		<br/><br/>
+		<form class="form-horizontal" onsubmit="return false;">
+			<div class="control-group">
+				<label class="control-label" for="changeMapSegmentSize">Change Segment Size</label>
+				<div class="controls">
+					<input type="number" id="changeMapSegmentSize" placeholder="25" value="25">
+				</div>
+			</div>
+		</form>
 	</div>
 
 </div>
@@ -107,8 +117,17 @@
 			mapColumnMaxSegmentCount : 10,
 		}).data('rtsHeatMap');
 
-		$('#changecolor').click(function(){
-			map.setMapSegmentColor('#'+('000000' + Math.floor(Math.random()*0xFFFFFF<<0).toString(16)).slice(-6));
+		$('#changeMapSegmentcolor').click(function(){
+			map.setMapSegmentColor('#'+('000000' + Math.floor(Math.random()*0xFFFFFF<<0).toString(16)).slice(-6))
+		});
+
+		$('#changeMapBackgroundcolor').click(function(){
+			map.setMapBackgroundColor('#'+('000000' + Math.floor(Math.random()*0xFFFFFF<<0).toString(16)).slice(-6));
+		});
+
+		$('#changeMapSegmentSize').change(function(){
+			var s = $('#changeMapSegmentSize').val();
+			map.setMapSegmentSize(s,s);
 		});
 
 

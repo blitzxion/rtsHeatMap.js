@@ -14,7 +14,7 @@
 		mapSegmentRadius : 0,
 
 		mapColumnSegmentDimensions : {width:15,height:15}, // Dimensions, in pixels. (10px height, 10px width)
-		mapColumnMaxSegmentCount : 7, // The number of segments rendered per column
+		//mapColumnMaxSegmentCount : 7, // The number of segments rendered per column
 
 		mapData : {}, // Data for the map (object array)
 
@@ -104,6 +104,34 @@
 				})
 			}
 			domObj.drawLayers(); // once all layers have their colors, draw them
+			//return this; // doing this only means you can chain my methods, and not jQuery object ones... do not want.
+		}
+
+		this.setMapBackgroundColor = function(color) {
+			opts.mapBackgroundcolor = color;
+			var domObj = $this.find('canvas');
+			domObj.css({'background-color' : opts.mapBackgroundcolor});
+			//return this;
+		}
+
+		// This method not only sets the size of the segments, but repositions them to fit the new size (just the segments, not the canvas object)
+		this.setMapSegmentSize = function(w,h) {
+
+			opts.mapColumnSegmentDimensions.width = w;
+			opts.mapColumnSegmentDimensions.height = h;
+
+			var domObj = $this.find('canvas');
+			var layers = domObj.getLayers();
+			for(var key in layers) {
+				var layer = layers[key];
+				domObj.setLayer(layer,{
+					x: getX(key),
+					y: getY(key),
+					width: opts.mapColumnSegmentDimensions.width,
+					height: opts.mapColumnSegmentDimensions.height,
+				})
+			}
+			domObj.drawLayers(); // once all layers have their colors, draw them
 		}
 
 		// Private
@@ -112,11 +140,14 @@
 			var objName = "rtsMap";
 			if(domObj.attr('id') != "") objName = domObj.attr('id')+"rtsHeatMap";
 
+			opts.mapHeight = (opts.mapHeight) ? opts.mapHeight : $this.height();
+			opts.mapWidth = (opts.mapWidth) ? opts.mapWidth : $this.width();
+
 			var cObj = $('<canvas/>')
 				.attr({
 					'id' :objName,
-					'height' : (opts.mapHeight) ? opts.mapHeight : $this.height(),
-					'width' : (opts.mapWidth) ? opts.mapWidth : $this.width()
+					'height' : opts.mapHeight,
+					'width' : opts.mapWidth
 				})
 				.css({
 					'background-color' : opts.mapBackgroundcolor
@@ -141,6 +172,20 @@
 			return fillStyle;
 		}
 
+		var getX = function(increment) {
+			// Determine X position (column)
+			var xm = (increment/((opts.mapHeight / opts.mapColumnSegmentDimensions.height)|0))|0;
+			var x = xm * opts.mapColumnSegmentDimensions.width; // First value
+			return x;
+		}
+
+		var getY = function(increment) {
+			// Determine Y position (row)
+			var ym = (increment % ((opts.mapHeight / opts.mapColumnSegmentDimensions.height)|0) ); // Y pos multiplier
+			var y = ym * opts.mapColumnSegmentDimensions.height;
+			return y;
+		}
+
 		// My random color do-hicky
 		// http://www.paulirish.com/2009/random-hex-color-code-snippets/
 		if(opts.mapSegmentColor == 'random')
@@ -163,27 +208,17 @@
 		var ratio = (1 - opts.mapSegmentMinLightness - (1-opts.mapSegmentMaxLightness))/(highest - lowest);
 
 		var i = 0;
-		var columnCount = 0;
 		for(var key in opts.mapData) {
 
-			// Determine X position (column)
-			// if i % mapColumnMaxSegmentCount = 0, then we're at the start of a new column, x should be i + opts.mapColumnSegmentDimensions.width
-			var x = columnCount * opts.mapColumnSegmentDimensions.width; // First value
-			if(i !=0 && i % opts.mapColumnMaxSegmentCount == 0) // ... i'm at the start of a new column
-				x = (++columnCount) * opts.mapColumnSegmentDimensions.width; // Move x over, increase ColumnCount for next trip
-
-			// Determine Y position (row)
-			var y = (i % opts.mapColumnMaxSegmentCount == 0) ? 0 : y;
-			if(i % opts.mapColumnMaxSegmentCount > 0) { // I'm withing a column, keep adding height
-				y += opts.mapColumnSegmentDimensions.height;
-			}
+			var x = getX(i);
+			var y = getY(i);
 
 			// Create square
 			$(canvObj).drawRect({
 				layer: true,
 				fillStyle: getFillStyle(opts.mapData[key]), // This is the hard part (setting the color)
-				x: x,  // Starting from 0, then until max segmentCount is reached, then its value + segment width (in addition to borders)
-				y: y, // Starting from 0, then value + segmentHeight, then until max segmentCount is reached, the its back to 0
+				x: getX(i),  // Starting from 0, then until max segmentCount is reached, then its value + segment width (in addition to borders)
+				y: getY(i), // Starting from 0, then value + segmentHeight, then until max segmentCount is reached, the its back to 0
 				strokeStyle: "rgba(37,51,148,0.1)",
 				strokeWidth: 1,
 				width: opts.mapColumnSegmentDimensions.width,
