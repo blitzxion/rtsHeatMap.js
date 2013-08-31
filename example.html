@@ -6,6 +6,7 @@
 
 	<style type="text/css">
 		.maps { height: 200px; }
+		#map1 { height:100px; }
 	</style>
 
 	<!-- Required -->
@@ -104,10 +105,15 @@
 			}
 		};
 
+		$.rtsHeatMapDefaults = {
+
+		}
+
 		// Render Maps
 		$('.maps').rtsHeatMap({
 			// options (will apply to all, however, data-attrs will override these values if they are present!)
-			mapBackgroundcolor : 'white'
+			mapBackgroundcolor : 'white',
+			mapSegmentValueColor : [[0,"#c20010"],[50,"#697aba"],[200,"#01739f"]]
 		});
 
 		var map = $('#map4').rtsHeatMap({
@@ -115,6 +121,7 @@
 			mapSegmentColor : "#89b092",
 			mapColumnSegmentDimensions : {width:25,height:25},
 			mapColumnMaxSegmentCount : 10,
+			mapSegmentValueColor : [[0,"#c20010"],[50,"#697aba"],[200,"#01739f"]]
 		}).data('rtsHeatMap');
 
 		$('#changeMapSegmentcolor').click(function(){

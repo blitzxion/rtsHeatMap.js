@@ -8,6 +8,7 @@
 		mapHeight : null, // If null, i'll use the parent DOM height if possible (otherwise, fallback 200px).
 		mapWidth : null, // If null, i'll use the parent DOM width
 
+		mapSegmentValueColor : null, // You can provide an array of key/value pairs to change color of certain values. [[0,<color>],[50,<color>],[75,<color>]
 		mapSegmentColor : "#89bc62", // You must provide me and RGB value (rgb(255,255,255)) and i'll use this (in HSL format) only OR the word random, then i'll pick one for you
 		mapSegmentMinLightness : .15,
 		mapSegmentMaxLightness : .85,
@@ -159,6 +160,15 @@
 		}
 
 		var getFillStyle = function(val) {
+
+			// I'm going to check if you provided any value/color overrides and use that. Otherwise, i'm going to use your base color for values
+			if(opts.mapSegmentValueColor != null && opts.mapSegmentValueColor instanceof Array) {
+				for(var i = 0; i < opts.mapSegmentValueColor.length; i++) {
+					if(opts.mapSegmentValueColor[i][0] === val)
+						return opts.mapSegmentValueColor[i][1];
+				}
+			}
+
 			// Determine Fill Style
 			fillStyle = hexToRgb(opts.mapSegmentColor); // This will either be null (it wasn't hex) or an string rgb value
 			if(!fillStyle) fillStyle = opts.mapSegmentColor; // returns {r:0,g:0,b:0} object
