@@ -46,7 +46,7 @@
 
 	<hr/>
 
-	<div id="map4" style="height:300px" data-map-segment-color="random" data-map-data=""></div>
+	<div id="map4" style="height:300px" data-map-data=""></div>
 	<br/>
 	<div>
 		<button type="button" class="btn btn-primary" id="changeMapSegmentcolor">Change Base Segment Color</button>
@@ -57,6 +57,13 @@
 				<label class="control-label" for="changeMapSegmentSize">Change Segment Size</label>
 				<div class="controls">
 					<input type="number" id="changeMapSegmentSize" placeholder="25" value="25">
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="changeMapSegment0Color">Change Color for value</label>
+				<div class="controls">
+					<input type="number" id="changeMapSegmentValue" value="0">
+					<input type="color" id="changeMapSegmentValueColor" value="#0000000">
 				</div>
 			</div>
 		</form>
@@ -105,15 +112,15 @@
 			}
 		};
 
-		$.rtsHeatMapDefaults = {
-
-		}
-
 		// Render Maps
 		$('.maps').rtsHeatMap({
 			// options (will apply to all, however, data-attrs will override these values if they are present!)
 			mapBackgroundcolor : 'white',
-			mapSegmentValueColor : [[0,"#c20010"],[50,"#697aba"],[200,"#01739f"]]
+			mapSegmentValueColor : {
+				0:"black",
+				50:"#697aba",
+				200:"#01739f"
+			}
 		});
 
 		var map = $('#map4').rtsHeatMap({
@@ -121,7 +128,16 @@
 			mapSegmentColor : "#89b092",
 			mapColumnSegmentDimensions : {width:25,height:25},
 			mapColumnMaxSegmentCount : 10,
-			mapSegmentValueColor : [[0,"#c20010"],[50,"#697aba"],[200,"#01739f"]]
+			mapSegmentValueColor : {
+				0:"black",
+				50:"#697aba",
+				200:"#01739f"
+			},
+
+			mapOnSegmentClick : function(segment){ // segment.data.value, segment.x/y, segment.fillStyle
+				$('#changeMapSegmentValue').val(segment.data.dataValue);
+				$('#changeMapSegmentValueColor').val('#'+('000000' + Math.floor(Math.random()*0xFFFFFF<<0).toString(16)).slice(-6)).trigger('change');
+			}
 		}).data('rtsHeatMap');
 
 		$('#changeMapSegmentcolor').click(function(){
@@ -135,6 +151,12 @@
 		$('#changeMapSegmentSize').change(function(){
 			var s = $('#changeMapSegmentSize').val();
 			map.setMapSegmentSize(s,s);
+		});
+
+		$('#changeMapSegmentValueColor').change(function(){
+			var val = parseInt($('#changeMapSegmentValue').val()),
+				color = $(this).val();
+			map.setMapSegmentValueColor(val,color);
 		});
 
 

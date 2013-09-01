@@ -8,7 +8,7 @@
 		mapHeight : null, // If null, i'll use the parent DOM height if possible (otherwise, fallback 200px).
 		mapWidth : null, // If null, i'll use the parent DOM width
 
-		mapSegmentValueColor : null, // You can provide an array of key/value pairs to change color of certain values. [[0,<color>],[50,<color>],[75,<color>]
+		mapSegmentValueColor : null, // You can provide an array of key/value pairs to change color of certain values. {0:<color>,50,<color>,75,<color>}
 		mapSegmentColor : "#89bc62", // You must provide me and RGB value (rgb(255,255,255)) and i'll use this (in HSL format) only OR the word random, then i'll pick one for you
 		mapSegmentMinLightness : .15,
 		mapSegmentMaxLightness : .85,
@@ -18,6 +18,9 @@
 		//mapColumnMaxSegmentCount : 7, // The number of segments rendered per column
 
 		mapData : {}, // Data for the map (object array)
+
+		//events
+		mapOnSegmentClick : null,
 
 		mapComplete : null // Once all maps have been renedered, i'll call this
 	};
@@ -75,8 +78,6 @@
 	function log(msg)  { console.log(msg); }
 	Object.size = function(obj) { var size = 0, key; for (key in obj) { if (obj.hasOwnProperty(key)) size++; } return size; };
 	String.prototype.format = function() { var args = arguments; return this.replace(/\{(\d+)\}/g, function(match, number) { return typeof args[number] != 'undefined' ? args[number] : match; }); };
-	// Array.prototype.max = function() {  return Math.max.apply(null, this); };
-	// Array.prototype.min = function() {  return Math.min.apply(null, this); };
 
 	// Main Entry point for plugin
 	var RTSHeatMap = function(element, options) {
@@ -100,6 +101,9 @@
 			var layers = domObj.getLayers();
 			for(var key in layers) {
 				var layer = layers[key];
+
+				if((typeof(layer) != "object")) continue; // we just want objects
+
 				domObj.setLayer(layer,{
 					fillStyle : getFillStyle(layer.data.dataValue) // hurp...
 				})
@@ -135,6 +139,14 @@
 			domObj.drawLayers(); // once all layers have their colors, draw them
 		}
 
+		// I'm going to take the array you passed me, merge it with the existing one (so you don't have to keep giving me all the values) and update the colors
+		this.setMapSegmentValueColor = function(val,color) {
+			var v = {};
+			v[val] = color;
+			opts.mapSegmentValueColor = $.extend(opts.mapSegmentValueColor,v);
+			this.setMapSegmentColor(opts.mapSegmentColor); // update the grid
+		}
+
 		// Private
 		var createCanvasObject = function(domObj) {
 			// objID should be the parent's domObj. I'll use id to unique this guy, or a name
@@ -162,12 +174,10 @@
 		var getFillStyle = function(val) {
 
 			// I'm going to check if you provided any value/color overrides and use that. Otherwise, i'm going to use your base color for values
-			if(opts.mapSegmentValueColor != null && opts.mapSegmentValueColor instanceof Array) {
-				for(var i = 0; i < opts.mapSegmentValueColor.length; i++) {
-					if(opts.mapSegmentValueColor[i][0] === val)
-						return opts.mapSegmentValueColor[i][1];
-				}
-			}
+			if(opts.mapSegmentValueColor != null)
+				for(var key in opts.mapSegmentValueColor)
+					if(key == val)
+						return opts.mapSegmentValueColor[key];
 
 			// Determine Fill Style
 			fillStyle = hexToRgb(opts.mapSegmentColor); // This will either be null (it wasn't hex) or an string rgb value
@@ -237,7 +247,13 @@
 				cornerRadius: opts.mapSegmentRadius,
 				data: {
 					dataValue : opts.mapData[key] // Use this for future repaints and other options (so we're not constantly looping over the data array)
+				},
+
+				click: function(layer){
+					if(opts.mapOnSegmentClick != null)
+						opts.mapOnSegmentClick(layer);
 				}
+
 			});
 
 			i++; // required
