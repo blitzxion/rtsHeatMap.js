@@ -220,25 +220,26 @@
 		var lowest = Number.POSITIVE_INFINITY;
 		var highest = Number.NEGATIVE_INFINITY;
 		var tmp;
-		for (var key in opts.mapData) {
-			tmp = opts.mapData[key];
+
+		for (var i = 0; i < opts.mapData.length; i++) {
+			tmp = opts.mapData[i][1];
 			if(tmp < lowest) lowest = tmp;
 			if(tmp > highest) highest = tmp;
-		}
+		};
 		var ratio = (1 - opts.mapSegmentMinLightness - (1-opts.mapSegmentMaxLightness))/(highest - lowest);
 
-		var i = 0;
-		for(var key in opts.mapData) {
+		var t = 0;
+		for (var i = 0; i < opts.mapData.length; i++) {
 
-			var x = getX(i);
-			var y = getY(i);
+			var x = getX(t);
+			var y = getY(t);
 
 			// Create square
 			$(canvObj).drawRect({
 				layer: true,
-				fillStyle: getFillStyle(opts.mapData[key]), // This is the hard part (setting the color)
-				x: getX(i),  // Starting from 0, then until max segmentCount is reached, then its value + segment width (in addition to borders)
-				y: getY(i), // Starting from 0, then value + segmentHeight, then until max segmentCount is reached, the its back to 0
+				fillStyle: getFillStyle(opts.mapData[i][1]), // This is the hard part (setting the color)
+				x: getX(t),  // Starting from 0, then until max segmentCount is reached, then its value + segment width (in addition to borders)
+				y: getY(t), // Starting from 0, then value + segmentHeight, then until max segmentCount is reached, the its back to 0
 				strokeStyle: "rgba(37,51,148,0.1)",
 				strokeWidth: 1,
 				width: opts.mapColumnSegmentDimensions.width,
@@ -246,7 +247,7 @@
 				fromCenter: false, // MUST SET THIS FOR EASIER POSITIONING
 				cornerRadius: opts.mapSegmentRadius,
 				data: {
-					dataValue : opts.mapData[key] // Use this for future repaints and other options (so we're not constantly looping over the data array)
+					dataValue : opts.mapData[i][1] // Use this for future repaints and other options (so we're not constantly looping over the data array)
 				},
 
 				click: function(layer){
@@ -256,7 +257,7 @@
 
 			});
 
-			i++; // required
+			t++; // required
 		};
 	}
 

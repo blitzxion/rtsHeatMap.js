@@ -82,31 +82,31 @@
 
 		var vals = [];
 		for (var i = 1; i <= 4; i++) {
-			vals[i] = {}; // new array
+			vals[i] = []; // new array
 			switch(i) {
 				// Dates array
 				case 1:
 					for(var d = 0; d <= 365; d++)
-						vals[i][range[d]] = getRandomInt(0,200); // Looping over all days
+						vals[i][d] = [range[d],getRandomInt(0,200)]; // Looping over all days
 					$('#map1').attr('data-map-data',$.toJSON(vals[i]));
 					break;
 
 				// Simple Points array
 				case 2:
 					for(var d = 0; d <= getRandomInt(300,400); d++)
-						vals[i][d] = getRandomInt(0,200);
+						vals[i][d] = [d,getRandomInt(0,200)];
 					$('#map2').attr('data-map-data',$.toJSON(vals[i]));
 					break;
 
 				// Strange use?
 				case 3:
 					for(var d = 0; d <= getRandomInt(300,600); d++)
-						vals[i][d] = getRandomInt(0,10);
+						vals[i][d] = [d,getRandomInt(0,10)];
 					$('#map3').attr('data-map-data',$.toJSON(vals[i]));
 					break;
 
 				case 4:
-					for(var d = 0; d <= 400; d++) vals[i][d] = d;
+					for(var d = 0; d <= 400; d++) vals[i][d] = [d,d];
 					$('#map4').attr('data-map-data',$.toJSON(vals[i]));
 					break;
 			}
